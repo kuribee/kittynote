@@ -23,6 +23,6 @@
 
 9. docker跟容器（container）相关的命令，可以省略container，如下图所示：
 
-   <img src="E:\study\kittynote\docker\images\docker省略.png" alt="省" style="zoom:80%;" />
+   <img src=".\images\docker省略.png" alt="省" style="zoom:80%;" />
 
 10. 
