@@ -112,26 +112,28 @@
 
     <img src=".\images\mani.png" alt="省" style="zoom:80%;" />
 
-36. 如果某个镜像层被多个镜像共享，那只有当全部依赖该镜像层的镜像都被删除后，该镜像层才会被删除。
+36. 构建多架构的镜像方式有很多种。例如buildx，
 
-37. tag并不能代表一个镜像，例如修改镜像使用相同tag(例如1.5)。此时就需要基于tag的pull镜像方式，可以保证拉取的是自己想要的镜像。
+37. 如果某个镜像层被多个镜像共享，那只有当全部依赖该镜像层的镜像都被删除后，该镜像层才会被删除。
 
-38. 在虚拟机模型中，首先要开启物理机并启动Hypervisor引导程序（本书跳过了BIOS和Bootloader代码等）。一旦Hypervisor启动，就会占有机器上的全部物理资源，如CPU、RAM、存储和NIC。Hypervisor接下来就会将这些物理资源划分为虚拟资源，并且看起来与真实物理资源完全一致。然后Hypervisor会将这些资源打包进一个叫作虚拟机（VM）的软件结构当中。这样用户就可以使用这些虚拟机，并在其中安装操作系统和应用。
+38. tag并不能代表一个镜像，例如修改镜像使用相同tag(例如1.5)。此时就需要基于tag的pull镜像方式，可以保证拉取的是自己想要的镜像。
 
-39. 与虚拟机模型相同，OS也占用了全部硬件资源。在OS层之上，需要安装容器引擎（如Docker）。容器引擎可以获取系统资源，比如进程树、文件系统以及网络栈，接着将资源分割为安全的互相隔离的资源结构，称之为容器。每个容器看起来就像一个真实的操作系统，在其内部可以运行应用。
+39. 在虚拟机模型中，首先要开启物理机并启动Hypervisor引导程序（本书跳过了BIOS和Bootloader代码等）。一旦Hypervisor启动，就会占有机器上的全部物理资源，如CPU、RAM、存储和NIC。Hypervisor接下来就会将这些物理资源划分为虚拟资源，并且看起来与真实物理资源完全一致。然后Hypervisor会将这些资源打包进一个叫作虚拟机（VM）的软件结构当中。这样用户就可以使用这些虚拟机，并在其中安装操作系统和应用。
 
-40. 从更高层面上来讲，Hypervisor是硬件虚拟化（Hardware Virtualization）—Hypervisor将硬件物理资源划分为虚拟资源；另外，容器是操作系统虚拟化（OS Virtualization）—容器将系统资源划分为虚拟资源。
+40. 与虚拟机模型相同，OS也占用了全部硬件资源。在OS层之上，需要安装容器引擎（如Docker）。容器引擎可以获取系统资源，比如进程树、文件系统以及网络栈，接着将资源分割为安全的互相隔离的资源结构，称之为容器。每个容器看起来就像一个真实的操作系统，在其内部可以运行应用。
 
-41. 直至明确删除容器前，容器都不会丢弃其中的数据。就算容器被删除了，如果将容器数据存储在卷中，数据也会被保存下来。
+41. 从更高层面上来讲，Hypervisor是硬件虚拟化（Hardware Virtualization）—Hypervisor将硬件物理资源划分为虚拟资源；另外，容器是操作系统虚拟化（OS Virtualization）—容器将系统资源划分为虚拟资源。
 
-42. docker container stop命令就有礼貌多了（就像用枪指着容器的脑袋然后说“你有10s时间说出你的遗言”）。该命令给容器内进程发送将要停止的警告信息，给进程机会来有序处理停止前要做的事情。一旦docker stop命令返回后，就可以使用docker container rm命令删除容器了。这背后的原理可以通过Linux/POSIX信号来解释。docker container stop命令向容器内的PID 1进程发送了SIGTERM这样的信号。就像前文提到的一样，会为进程预留一个清理并优雅停止的机会。如果10s内进程没有终止，那么就会收到SIGKILL信号。这是致命一击。但是，进程起码有10s的时间来“解决”自己。docker container rm <container> -f命令不会先友好地发送SIGTERM，这条命令会直接发出SIGKILL。
+42. 直至明确删除容器前，容器都不会丢弃其中的数据。就算容器被删除了，如果将容器数据存储在卷中，数据也会被保存下来。
 
-43. 通常建议在运行容器时配置好重启策略。这是容器的一种自我修复能力，可以在指定事件或者错误后重启来完成自我修复。重启策略应用于每个容器，可以作为参数被强制传入docker-container run命令中，或者在Compose文件中声明（在使用Docker Compose以及Docker Stacks的情况下）。截至本书撰写时，容器支持的重启策略包括always、unless-stopped和on-failed。
+43. docker container stop命令就有礼貌多了（就像用枪指着容器的脑袋然后说“你有10s时间说出你的遗言”）。该命令给容器内进程发送将要停止的警告信息，给进程机会来有序处理停止前要做的事情。一旦docker stop命令返回后，就可以使用docker container rm命令删除容器了。这背后的原理可以通过Linux/POSIX信号来解释。docker container stop命令向容器内的PID 1进程发送了SIGTERM这样的信号。就像前文提到的一样，会为进程预留一个清理并优雅停止的机会。如果10s内进程没有终止，那么就会收到SIGKILL信号。这是致命一击。但是，进程起码有10s的时间来“解决”自己。docker container rm <container> -f命令不会先友好地发送SIGTERM，这条命令会直接发出SIGKILL。
 
-44. always策略是一种简单的方式。除非容器被明确停止，比如通过docker container stop命令，否则该策略会一直尝试重启处于停止状态的容器。一种简单的证明方式是启动一个新的交互式容器，并在命令后面指定--restart always策略，同时在命令中指定运行Shell进程。当容器启动的时候，会登录到该Shell。退出Shell时会杀死容器中PID为1的进程，并且杀死这个容器。但是因为指定了--restart always策略，所以容器会自动重启。--restart always策略有一个很有意思的特性，当daemon重启的时候，停止的容器也会被重启。
+44. 通常建议在运行容器时配置好重启策略。这是容器的一种自我修复能力，可以在指定事件或者错误后重启来完成自我修复。重启策略应用于每个容器，可以作为参数被强制传入docker-container run命令中，或者在Compose文件中声明（在使用Docker Compose以及Docker Stacks的情况下）。截至本书撰写时，容器支持的重启策略包括always、unless-stopped和on-failed。
 
-45. always和unless-stopped的最大区别，就是那些指定了--restart unless-stopped并处于Stopped (Exited)状态的容器，不会在Docker daemon重启的时候被重启。
+45. always策略是一种简单的方式。除非容器被明确停止，比如通过docker container stop命令，否则该策略会一直尝试重启处于停止状态的容器。一种简单的证明方式是启动一个新的交互式容器，并在命令后面指定--restart always策略，同时在命令中指定运行Shell进程。当容器启动的时候，会登录到该Shell。退出Shell时会杀死容器中PID为1的进程，并且杀死这个容器。但是因为指定了--restart always策略，所以容器会自动重启。--restart always策略有一个很有意思的特性，当daemon重启的时候，停止的容器也会被重启。
 
-46. on-failure策略会在退出容器并且返回值不是0的时候，重启容器。就算容器处于stopped状态，在Docker daemon重启的时候，容器也会被重启。
+46. always和unless-stopped的最大区别，就是那些指定了--restart unless-stopped并处于Stopped (Exited)状态的容器，不会在Docker daemon重启的时候被重启。
 
-47. 
+47. on-failure策略会在退出容器并且返回值不是0的时候，重启容器。就算容器处于stopped状态，在Docker daemon重启的时候，容器也会被重启。
+
+48. 
